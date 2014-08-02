@@ -11,10 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140802145110) do
+ActiveRecord::Schema.define(version: 20140802145739) do
 
   create_table "crawling_errors", force: true do |t|
-    t.string   "type"
+    t.string   "error_type"
     t.string   "url"
     t.text     "info"
     t.integer  "site_id"

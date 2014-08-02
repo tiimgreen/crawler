@@ -4,4 +4,18 @@
   = @site.name
   %small= link_to @site.url, @site.url
 
+%table.results-table
+  %thead
+    %tr
+      %th Error Type
+      %th URL
+      %th Additional Info
+  %tbody
+    - @site.crawling_errors.each do |error|
+      %tr
+        %td= error.error_type
+        %td= link_to error.url, error.url
+        %td= error.info
+
+
 = link_to 'Crawl', new_crawl_path(@site)
