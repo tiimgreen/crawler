@@ -1,9 +1,14 @@
-%h1 Sites#new
+- provide :title, 'New Site'
 
-= form_for @site do |f|
-  = f.label :name
-  = f.text_field :name, autofocus: true, placeholder: 'Name'
-  = f.label :url
-  = f.url_field :url, autofocus: true, placeholder: 'Name'
+%h1 New Site
 
-  = f.submit 'Submit'
+= form_for @site, html_options: { class: 'form-horizontal' } do |f|
+  .form-group
+    = f.label :name, class: 'col-sm-2 control-label'
+    = f.text_field :name, autofocus: true, placeholder: 'Name', class: 'form-control'
+  .form-group
+    = f.label :url, class: 'col-sm-2 control-label'
+    = f.url_field :url, autofocus: true, placeholder: 'Name', class: 'form-control'
+  .form-group
+    .col-sm-offset-2.col-sm-10
+      = f.submit 'Submit', class: 'btn btn-primary'

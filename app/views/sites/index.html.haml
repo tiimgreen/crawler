@@ -2,9 +2,29 @@
 
 %h1 Sites
 
-- if @sites.any?
-  %ul
-    - @sites.each do |site|
-      %li
-        = link_to site.name, site
-        = " (#{site.url})"
+%table.table.table-bordered.table-hover
+  - if @sites.any?
+    %thead
+      %tr
+        %th Site Name
+        %th Site URL
+        %th Errors
+    %tbody
+      - @sites.each do |site|
+        - if site.crawling_errors.count > 0
+          %tr.danger
+            %td= link_to site.name, site
+            %td
+              = site.url
+              = link_to '(visit site)', site.url
+            %td= site.crawling_errors.count
+        - else
+          %tr
+            %td= link_to site.name, site
+            %td
+              = site.url
+              = link_to '(visit site)', site.url
+            %td= site.crawling_errors.count
+  - else
+    There are no sites,
+    = link_to 'add a new site here.', new_site_path

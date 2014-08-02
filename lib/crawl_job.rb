@@ -10,6 +10,7 @@ class CrawlJob < Struct.new(:site_id)
     crawl_page @site.url
     @site.update_attributes(currently_crawling: false)
   end
+  handle_asynchronously :perform
 
   def crawl_page(url, options = {})
     doc = Nokogiri::HTML open(url)

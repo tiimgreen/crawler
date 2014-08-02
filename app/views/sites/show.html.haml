@@ -6,8 +6,11 @@
     %small= link_to @site.url, @site.url
   .col-md-6
     .pull-right
-      Last crawled:
+      %strong Last crawled:
       = @site.last_crawled || 'Not yet crawled'
+      %br
+      %strong Currently crawling:
+      = @site.currently_crawling
 
 = link_to new_crawl_path(@site), class: 'btn btn-primary col-md-12 crawl-button' do
   %i.fa.fa-rocket
@@ -23,8 +26,12 @@
       %th URL
       %th Additional Info
   %tbody
-    - @site.crawling_errors.each do |error|
-      %tr
-        %td= error.error_type
-        %td= link_to error.url, error.url
-        %td= error.info
+    - if @site.crawling_errors.any?
+      - @site.crawling_errors.each do |error|
+        %tr
+          %td= error.error_type
+          %td= link_to error.url, error.url
+          %td= error.info
+    - else
+      %tr.success.center
+        %td{'colspan' => '3'} There are no errors.
