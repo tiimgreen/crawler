@@ -4,6 +4,9 @@
   = @site.name
   %small= link_to @site.url, @site.url
 
+- if @site.currently_crawling
+  Currently crawling
+
 %table.results-table
   %thead
     %tr

@@ -1,12 +1,17 @@
 class CrawlJob < Struct.new(:site_id)
   def perform
     require 'open-uri'
-    @site = Site.find site_id
+    @site = Site.find(site_id)
+    @site.currently_crawling = true
+    @links = [@site.url]
+
+    @site.crawling_errors.each { |e| e.destroy }
 
     crawl_page @site.url
+    @site.currently_crawling = false
   end
 
-  def crawl_page(url)
+  def crawl_page(url, options = {})
     doc = Nokogiri::HTML open(url)
     lorem_results = doc.search "[text()*='digitally']"
     if lorem_results
@@ -14,6 +19,10 @@ class CrawlJob < Struct.new(:site_id)
         @site.crawling_errors.create(error_type: 'Lorem ipsum', url: url, info: lr.to_html)
       end
     end
-    puts self.class.name.humanize
+
+    find_links_on_page(url)
+  end
+
+  def find_links_on_page(url)
   end
 end
