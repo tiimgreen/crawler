@@ -2,13 +2,13 @@ class CrawlJob < Struct.new(:site_id)
   def perform
     require 'open-uri'
     @site = Site.find(site_id)
-    @site.currently_crawling = true
+    @site.update_attributes(currently_crawling: true, last_crawled: Time.now)
     @links = [@site.url]
 
     @site.crawling_errors.each { |e| e.destroy }
 
     crawl_page @site.url
-    @site.currently_crawling = false
+    @site.update_attributes(currently_crawling: false)
   end
 
   def crawl_page(url, options = {})

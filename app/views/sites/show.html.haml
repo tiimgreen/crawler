@@ -1,13 +1,22 @@
 - provide :title, @site.name
 
-%h1
-  = @site.name
-  %small= link_to @site.url, @site.url
+.row
+  %h1.col-md-6
+    = @site.name
+    %small= link_to @site.url, @site.url
+  .col-md-6
+    .pull-right
+      Last crawled:
+      = @site.last_crawled || 'Not yet crawled'
+
+= link_to new_crawl_path(@site), class: 'btn btn-primary col-md-12 crawl-button' do
+  %i.fa.fa-rocket
+  Crawl
 
 - if @site.currently_crawling
   Currently crawling
 
-%table.results-table
+%table.results-table.table.table-striped
   %thead
     %tr
       %th Error Type
@@ -19,6 +28,3 @@
         %td= error.error_type
         %td= link_to error.url, error.url
         %td= error.info
-
-
-= link_to 'Crawl', new_crawl_path(@site)

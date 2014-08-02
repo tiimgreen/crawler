@@ -7,6 +7,7 @@ gem 'sass-rails', '~> 4.0.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.0.0'
 gem 'haml', '~> 4.0.5'
+gem 'delayed_job', '~> 4.0.2'
 gem 'delayed_job_active_record'
 gem 'nokogiri', '~> 1.6.3.1'
 
