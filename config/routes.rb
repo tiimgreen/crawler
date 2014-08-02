@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  root 'pages#home'
+  root 'sites#index'
 
   resources :sites
   # The priority is based upon order of creation: first created -> highest priority.

@@ -1,1 +1,10 @@
-%h1 Sites#index
+- provide :title, 'All Sites'
+
+%h1 Sites
+
+- if @sites.any?
+  %ul
+    - @sites.each do |site|
+      %li
+        = link_to site.name, site
+        = " (#{site.url})"

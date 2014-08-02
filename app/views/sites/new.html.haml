@@ -1,1 +1,9 @@
 %h1 Sites#new
+
+= form_for @site do |f|
+  = f.label :name
+  = f.text_field :name, autofocus: true, placeholder: 'Name'
+  = f.label :url
+  = f.url_field :url, autofocus: true, placeholder: 'Name'
+
+  = f.submit 'Submit'

@@ -4,6 +4,13 @@ class SitesController < ApplicationController
   end
 
   def create
+    @site = Site.new site_params
+    if @site.save
+      flash[:success] = 'Site created'
+      redirect_to site_path @site
+    else
+      render :new
+    end
   end
 
   def edit
@@ -27,5 +34,6 @@ class SitesController < ApplicationController
   private
 
   def site_params
+    params.require(:site).permit(:name, :url)
   end
 end
