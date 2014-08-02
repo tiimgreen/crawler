@@ -2,6 +2,6 @@
 
 %h1
   = @site.name
-  %small= @site.url
+  %small= link_to @site.url, @site.url
 
 = link_to 'Crawl', new_crawl_path(@site)

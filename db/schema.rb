@@ -11,7 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140802135642) do
+ActiveRecord::Schema.define(version: 20140802145110) do
+
+  create_table "crawling_errors", force: true do |t|
+    t.string   "type"
+    t.string   "url"
+    t.text     "info"
+    t.integer  "site_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "delayed_jobs", force: true do |t|
     t.integer  "priority",   default: 0, null: false
