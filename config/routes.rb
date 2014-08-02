@@ -1,8 +1,15 @@
 Rails.application.routes.draw do
   root 'sites#index'
 
-  resources :sites
-  resources :crawls
+  get '/sites/new',      to: 'sites#new',     as: :new_site
+  get '/sites/:id',      to: 'sites#show',    as: :site
+  get '/sites/:id/edit', to: 'sites#edit',    as: :edit_site
+  get '/sites',          to: 'sites#index',   as: :sites
+  match '/sites',        to: 'sites#create',  as: :create_site, via: :post
+  match '/sites/:id',    to: 'sites#destroy', as: :delete_site, via: :delete
+  match '/sites',        to: 'sites#update',                    via: :post
+
+  get '/crawls/new/:site_id', to: 'crawls#new', as: :new_crawl
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

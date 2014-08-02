@@ -18,6 +18,13 @@ class SitesController < ApplicationController
   end
 
   def update
+    @site = Site.find_by params[:id]
+    if @site.update_attributes site_params
+      flash[:success] = 'Site updated'
+      redirect_to site_path @site
+    else
+      render :edit
+    end
   end
 
   def show
@@ -29,6 +36,14 @@ class SitesController < ApplicationController
   end
 
   def destroy
+    site = Site.find params[:id]
+    if site.destroy
+      flash[:success] = 'Site destroyed'
+      redirect_to sites_path
+    else
+      flash[:warning] = 'Error deleting site'
+      redirect_to site_path site
+    end
   end
 
   private
