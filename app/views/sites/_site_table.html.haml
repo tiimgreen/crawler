@@ -1,0 +1,5 @@
+%td= link_to site.name, site
+%td
+  = site.url
+  = link_to '(visit site)', site.url
+%td= link_to site.crawling_errors.count, site

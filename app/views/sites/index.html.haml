@@ -13,18 +13,10 @@
       - @sites.each do |site|
         - if site.crawling_errors.count > 0
           %tr.danger
-            %td= link_to site.name, site
-            %td
-              = site.url
-              = link_to '(visit site)', site.url
-            %td= site.crawling_errors.count
+            = render 'sites/site_table', site: site
         - else
           %tr
-            %td= link_to site.name, site
-            %td
-              = site.url
-              = link_to '(visit site)', site.url
-            %td= site.crawling_errors.count
+            = render 'sites/site_table', site: site
   - else
     There are no sites,
     = link_to 'add a new site here.', new_site_path
