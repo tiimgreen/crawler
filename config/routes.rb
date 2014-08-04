@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   get '/sites',          to: 'sites#index',   as: :sites
   match '/sites',        to: 'sites#create',  as: :create_site, via: :post
   match '/sites/:id',    to: 'sites#destroy', as: :delete_site, via: :delete
-  match '/sites',        to: 'sites#update',                    via: :post
+  match '/sites/:id',    to: 'sites#update',                    via: :patch
 
   get '/crawls/new/:site_id', to: 'crawls#new', as: :new_crawl
   # The priority is based upon order of creation: first created -> highest priority.

@@ -11,6 +11,8 @@
       %br
       %strong Currently crawling:
       = @site.currently_crawling
+      %br
+      = link_to 'Edit Site', edit_site_path(@site)
 
 - if @site.currently_crawling
   .loader

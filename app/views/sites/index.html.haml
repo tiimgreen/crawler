@@ -9,6 +9,7 @@
         %th Site Name
         %th Site URL
         %th Errors
+        %th Actions
     %tbody
       - @sites.each do |site|
         - if site.crawling_errors.count > 0
