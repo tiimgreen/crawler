@@ -12,9 +12,14 @@
       %strong Currently crawling:
       = @site.currently_crawling
 
-= link_to new_crawl_path(@site), class: 'btn btn-primary col-md-12 crawl-button' do
-  %i.fa.fa-rocket
-  Crawl
+- if @site.currently_crawling
+  .loader
+    Crawling site...
+  Crawling site...
+- else
+  = link_to new_crawl_path(@site), class: 'btn btn-primary col-md-12 crawl-button' do
+    %i.fa.fa-rocket
+    Crawl
 
 %table.results-table.table.table-striped
   %thead
