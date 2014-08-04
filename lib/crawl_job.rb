@@ -60,7 +60,7 @@ class CrawlJob < Struct.new(:site_id)
     end
 
     hrefs.each do |link|
-      formatted_link = link.include?('http://') ? link : @site.url + link
+      formatted_link = link.include?('http://') || link.include?('https://') ? link : @site.url + link
       formatted_link = formatted_link.split('#')[0] if formatted_link.include?('#')
       arr = [formatted_link, url]
       @links.push arr unless nested_include(@links, arr)
@@ -73,7 +73,7 @@ class CrawlJob < Struct.new(:site_id)
 
     scripts.each do |script|
       if script.children[0] &&
-         !(script.children[0].text =~ /\b(UA)\b-[0-9]{7}-[0-9]{1}/).nil? &&
+         !(script.children[0].text =~ /\b(UA)\b-[0-9]{6,8}-[0-9]{1}/).nil? &&
          script.children[0].text.include?('www.google-analytics.com')
 
         has_ga_code = true 
