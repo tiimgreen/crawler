@@ -11,7 +11,7 @@ class CrawlJob < Struct.new(:site_id)
 
     # Crawl homepage
     crawl_page @site.url, @site.url
-    gather_links_on_page @site.url
+    gather_links_on_page @site.url, @site.url
     search_for_ga_code @site.url
     search_for_link_to_parallax @site.url
 
@@ -24,36 +24,29 @@ class CrawlJob < Struct.new(:site_id)
   end
 
   def crawl_page(url, ref, options = {})
-    search_for_lorem url, ref
-    # Stops adding links to @links after it has visited 200 pages
-    gather_links_on_page url if options[:index] && options[:index] < 200
-  end
-
-  def search_for_lorem(url, ref)
     begin
-      doc = Nokogiri::HTML open(url)
-      lorem_results = []
-
-      for string in @text_to_search
-        results = doc.search("[text()*='#{string}']")
-        lorem_results.push(results) if results.present?
-      end
-
-      if lorem_results.any?
-        lorem_results.each do |lr|
-          @site.crawling_errors.create(error_type: 'Lorem ipsum', url: url, info: lr.to_html)
-        end
-      end
+      search_for_lorem url, ref
+      gather_links_on_page url, ref
     rescue OpenURI::HTTPError => e
       if e.message == '404 Not Found'
         he = @site.crawling_errors.build(error_type: '404', url: url, info: "Link found on page: #{ref}")
         he.new_record? ? he.save : he.destroy
+      elsif e.message == '500 Internal Server Error'
+        he = @site.crawling_errors.build(error_type: '500', url: url, info: "Internat server error, link on page: #{ref}")
+        he.new_record? ? he.save : he.destroy
       end
+    rescue
+    end
+  end
+
+  def search_for_lorem(url, ref)
+    begin
+      @site.crawling_errors.create(error_type: 'Lorem ipsum', url: url, info: 'Lorem ipsum detected on this page.') if open(url).read.downcase.include?('lorem ipsum')
     rescue URI::InvalidURIError
     end
   end
 
-  def gather_links_on_page(url, options = {})
+  def gather_links_on_page(url, ref, options = {})
     doc = Nokogiri::HTML open(url)
     links = doc.css 'a'
     hrefs = links.map { |link| link.attribute('href').to_s }.uniq.sort.delete_if do |href|
@@ -69,19 +62,8 @@ class CrawlJob < Struct.new(:site_id)
   end
 
   def search_for_ga_code(url)
-    doc, has_ga_code = Nokogiri::HTML(open(url)), false
-    scripts = doc.xpath("//script")
-
-    scripts.each do |script|
-      if script.children[0] &&
-         !(script.children[0].text =~ /\b(UA)\b-[0-9]{6,8}-[0-9]{1}/).nil? &&
-         script.children[0].text.include?('www.google-analytics.com')
-
-        has_ga_code = true 
-      end
-    end
-
-    unless has_ga_code
+    doc = open(url).read
+    if (doc =~ /\b(UA)\b-[0-9]{6,8}-[0-9]{1}/).nil? && !doc.include?('google-analytics')
       ga = @site.crawling_errors.build(error_type: 'No Google Analytics Code', url: url, info: "No Google Analytics code was found on this page")
       ga.new_record? ? ga.save : ga.destroy
     end
@@ -95,14 +77,9 @@ class CrawlJob < Struct.new(:site_id)
   end
 
   def search_for_utf_chars(url)
-    begin
-      doc = Nokogiri::HTML(open(url)).text
-      results = doc.scan(/((â€™)|(â€“)|(â„¢)|(º®)|(â€˜))/)
-      results.each do |result|
-        um = @site.crawling_errors.build(error_type: 'Invalid UTF characters found', url: url, info: result[0])
-        um.new_record? ? um.save : um.destroy
-      end
-    rescue
+    if !(open(url).read =~ /((â€™)|(â€“)|(â„¢)|(º®)|(â€˜))/).nil?
+      um = @site.crawling_errors.build(error_type: 'Invalid UTF characters found', url: url, info: 'Invalid UTF characters have been found on this page.')
+      um.new_record? ? um.save : um.destroy
     end
   end
 
@@ -112,7 +89,7 @@ class CrawlJob < Struct.new(:site_id)
     (href[0] == '/' && href.include?('http')) ||
     href.include?('javascript:') || href.include?('mailto:') || href.include?('.zip') ||
     href.include?('.jpg') || href.include?('.png') || href.include?('twitter.com') ||
-    href.include?('facebook.com')
+    href.include?('facebook.com') || href.include?('.exe') || href.include?('.bin')
   end
 
   def nested_include(nested_array, check)
