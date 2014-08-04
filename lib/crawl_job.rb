@@ -23,7 +23,7 @@ class CrawlJob < Struct.new(:site_id)
 
   def crawl_page(url, ref, options = {})
     search_for_lorem url, ref
-    gather_links_on_page url if options[:index] < 2
+    gather_links_on_page url if options[:index] && options[:index] < 2
   end
 
   def search_for_lorem(url, ref)
@@ -70,7 +70,7 @@ class CrawlJob < Struct.new(:site_id)
 
     scripts.each do |script|
       if script.children[0] &&
-         /\b(UA)\b-[0-9]{8}-[0-9]{1}/ =~ script.children[0].text &&
+         !(script.children[0].text =~ /\b(UA)\b-[0-9]{7}-[0-9]{1}/).nil? &&
          script.children[0].text.include?('www.google-analytics.com')
 
         has_ga_code = true 
@@ -93,9 +93,9 @@ class CrawlJob < Struct.new(:site_id)
     end
   end
 
-  def search_for_utf_chars(link)
+  def search_for_utf_chars(url)
     begin
-      doc = Nokogiri::HTML(open(link)).text
+      doc = Nokogiri::HTML(open(url)).text
       results = doc.scan(/((â€™)|(â€“)|(â„¢)|(º®)|(â€˜))/)
       results.each do |result|
         um = @site.crawling_errors.build(error_type: 'Invalid UTF characters found', url: url, info: result[0])
@@ -112,5 +112,4 @@ class CrawlJob < Struct.new(:site_id)
     href.include?('javascript:') || href.include?('mailto:') || href.include?('.zip') ||
     href.include?('.jpg') || href.include?('.png')
   end
-
 end
