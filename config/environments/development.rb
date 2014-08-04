@@ -34,4 +34,9 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Speed up Nokogiri as mentioned here: http://rubyglasses.blogspot.co.uk/2009/07/40-speedup-using-nokogiri.html
+  # This needs to be in the environment file.
+  config.gem "nokogiri"
+  ActiveSupport::XmlMini.backend='Nokogiri'
 end

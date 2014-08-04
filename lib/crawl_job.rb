@@ -16,7 +16,6 @@ class CrawlJob < Struct.new(:site_id)
     search_for_link_to_parallax @site.url
 
     @links.each_with_index do |arr, i|
-      puts arr[0]
       crawl_page arr[0], arr[1], index: i
     end
 
@@ -25,6 +24,7 @@ class CrawlJob < Struct.new(:site_id)
 
   def crawl_page(url, ref, options = {})
     search_for_lorem url, ref
+    # Stops adding links to @links after it has visited 100 pages
     gather_links_on_page url if options[:index] && options[:index] < 100
   end
 
@@ -48,6 +48,7 @@ class CrawlJob < Struct.new(:site_id)
         he = @site.crawling_errors.build(error_type: '404', url: url, info: "Link found on page: #{ref}")
         he.new_record? ? he.save : he.destroy
       end
+    rescue URI::InvalidURIError
     end
   end
 
@@ -62,7 +63,7 @@ class CrawlJob < Struct.new(:site_id)
       formatted_link = link.include?('http://') ? link : @site.url + link
       formatted_link = formatted_link.split('#')[0] if formatted_link.include?('#')
       arr = [formatted_link, url]
-      @links.push arr unless @links.include?(arr)
+      @links.push arr unless nested_include(@links, arr)
     end
   end
 
@@ -112,6 +113,15 @@ class CrawlJob < Struct.new(:site_id)
     (href[0] != '/' && !href.include?(@site.url.gsub('http://', ''))) ||
     (href[0] == '/' && href.include?('http')) ||
     href.include?('javascript:') || href.include?('mailto:') || href.include?('.zip') ||
-    href.include?('.jpg') || href.include?('.png')
+    href.include?('.jpg') || href.include?('.png') || href.include?('twitter.com') ||
+    href.include?('facebook.com')
+  end
+
+  def nested_include(nested_array, check)
+    includes = false
+    nested_array.each do |item|
+      includes = true if item[0] == check[0]
+    end
+    includes
   end
 end
