@@ -1,4 +1,4 @@
-class CreateCrawlingErrors < ActiveRecord::Migration
+class CreateCrawlingErrorsInitial < ActiveRecord::Migration
   def change
     create_table :crawling_errors do |t|
       t.string :type

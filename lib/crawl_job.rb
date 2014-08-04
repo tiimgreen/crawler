@@ -43,7 +43,11 @@ class CrawlJob < Struct.new(:site_id)
   end
 
   def invalid_link_format(href)
-    href.empty? || href == @site.url
+    href.empty? || /^[#].*$/ =~ href || href == '/' ||
+    (href[0] != '/' && !href.include?(@site.url.gsub('http://', ''))) ||
+    (href[0] == '/' && href.include?('http')) ||
+    href.include?('javascript:') || href.include?('mailto:') || href.include?('.zip') ||
+    href.include?('.jpg') || href.include?('.png')
   end
 
 end
