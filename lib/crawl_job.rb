@@ -16,11 +16,10 @@ class CrawlJob < Struct.new(:site_id)
     search_for_link_to_parallax @site.url
 
     @links.each_with_index do |arr, i|
-      puts arr[0]
       crawl_page arr[0], arr[1], index: i
     end
 
-    @site.update_attributes(currently_crawling: false)
+    @site.update_attributes(currently_crawling: false, finished_crawling: Time.now, links_crawled: @links.size)
   end
 
   def crawl_page(url, ref, options = {})

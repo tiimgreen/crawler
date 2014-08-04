@@ -12,6 +12,14 @@
       %strong Currently crawling:
       = @site.currently_crawling
       %br
+      - if @site.finished_crawling
+        %strong Time taken to crawl:
+        = distance_of_time_in_words @site.last_crawled, @site.finished_crawling
+        %br
+      - if @site.links_crawled
+        %strong Links Crawled:
+        = @site.links_crawled + 1
+        %br
       = link_to 'Edit Site', edit_site_path(@site)
 
 - if @site.currently_crawling
