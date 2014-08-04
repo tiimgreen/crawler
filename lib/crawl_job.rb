@@ -16,6 +16,7 @@ class CrawlJob < Struct.new(:site_id)
     search_for_link_to_parallax @site.url
 
     @links.each_with_index do |arr, i|
+      puts arr[0]
       crawl_page arr[0], arr[1], index: i
     end
 
@@ -24,8 +25,8 @@ class CrawlJob < Struct.new(:site_id)
 
   def crawl_page(url, ref, options = {})
     search_for_lorem url, ref
-    # Stops adding links to @links after it has visited 100 pages
-    gather_links_on_page url if options[:index] && options[:index] < 100
+    # Stops adding links to @links after it has visited 200 pages
+    gather_links_on_page url if options[:index] && options[:index] < 200
   end
 
   def search_for_lorem(url, ref)
@@ -87,10 +88,7 @@ class CrawlJob < Struct.new(:site_id)
   end
 
   def search_for_link_to_parallax(url)
-    doc = Nokogiri::HTML(open(url)).text
-    results = doc.scan(/href(=|-)("|')(https:\/\/|http:\/\/)?w{0,3}.?parall.ax(\/)?("|')/)
-
-    unless results.any?
+    if (open(url).read =~ /href(=|-)("|')(https:\/\/|http:\/\/)?w{0,3}.?parall.ax(\/)?("|')/).nil?
       pl = @site.crawling_errors.build(error_type: 'No Parallax Link', url: url, info: "There is no link back to http://parall.ax")
       pl.new_record? ? pl.save : pl.destroy
     end
