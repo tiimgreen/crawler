@@ -11,11 +11,13 @@ class CrawlJob < Struct.new(:site_id)
 
     # Crawl homepage
     crawl_page @site.url, @site.url
+    gather_links_on_page @site.url
     search_for_ga_code @site.url
     search_for_link_to_parallax @site.url
 
-    @links.each_with_index do |url, ref, i|
-      crawl_page url, ref, index: i
+    @links.each_with_index do |arr, i|
+      puts arr[0]
+      crawl_page arr[0], arr[1], index: i
     end
 
     @site.update_attributes(currently_crawling: false)
@@ -23,7 +25,7 @@ class CrawlJob < Struct.new(:site_id)
 
   def crawl_page(url, ref, options = {})
     search_for_lorem url, ref
-    gather_links_on_page url if options[:index] && options[:index] < 2
+    gather_links_on_page url if options[:index] && options[:index] < 100
   end
 
   def search_for_lorem(url, ref)

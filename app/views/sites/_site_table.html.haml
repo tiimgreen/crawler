@@ -4,5 +4,5 @@
   = link_to '(visit site)', site.url
 %td= link_to site.crawling_errors.count, site
 %td
-  = link_to 'Delete Site', delete_site_path(site), method: :delete, data: { confirm: "You sure?" }, title: site.name
-  = link_to 'Edit Site', edit_site_path(site)
+  = link_to 'Delete', delete_site_path(site), method: :delete, data: { confirm: "You sure?" }, title: site.name
+  = link_to 'Edit', edit_site_path(site)
