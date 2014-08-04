@@ -9,36 +9,76 @@ class CrawlJob < Struct.new(:site_id)
 
     @site.crawling_errors.each { |e| e.destroy }
 
-    crawl_page @site.url
+    # Crawl homepage
+    crawl_page @site.url, @site.url
+    search_for_ga_code @site.url
+
+    @links.each do |url, ref|
+      crawl_page url, ref, last: true
+    end
+
     @site.update_attributes(currently_crawling: false)
   end
 
-  def crawl_page(url, options = {})
-    search_for_lorem url
-    gather_links_on_page url
+  def crawl_page(url, ref, options = {})
+    search_for_lorem url, ref
+    gather_links_on_page url unless options[:last]
   end
 
-  def search_for_lorem(url)
-    doc = Nokogiri::HTML open(url)
-    lorem_results = []
+  def search_for_lorem(url, ref)
+    begin
+      doc = Nokogiri::HTML open(url)
+      lorem_results = []
 
-    for string in @text_to_search
-      results = doc.search("[text()*='#{string}']")
-      lorem_results.push(results) if results.present?
-    end
+      for string in @text_to_search
+        results = doc.search("[text()*='#{string}']")
+        lorem_results.push(results) if results.present?
+      end
 
-    if lorem_results.any?
-      lorem_results.each do |lr|
-        @site.crawling_errors.create(error_type: 'Lorem ipsum', url: url, info: lr.to_html)
+      if lorem_results.any?
+        lorem_results.each do |lr|
+          @site.crawling_errors.create(error_type: 'Lorem ipsum', url: url, info: lr.to_html)
+        end
+      end
+    rescue OpenURI::HTTPError => e
+      if e.message == '404 Not Found'
+        he = @site.crawling_errors.build(error_type: '404', url: url, info: "Link found on page: #{ref}")
+        he.new_record? ? he.save : he.destroy
       end
     end
   end
 
-  def gather_links_on_page(url)
+  def gather_links_on_page(url, options = {})
     doc = Nokogiri::HTML open(url)
     links = doc.css 'a'
     hrefs = links.map { |link| link.attribute('href').to_s }.uniq.sort.delete_if do |href|
       invalid_link_format href
+    end
+
+    hrefs.each do |link|
+      formatted_link = link.include?('http://') ? link : @site.url + link
+      formatted_link = formatted_link.split('#')[0] if formatted_link.include?('#')
+      arr = [formatted_link, url]
+      @links.push arr unless @links.include?(arr)
+    end
+  end
+
+  def search_for_ga_code(url)
+    doc, has_ga_code = Nokogiri::HTML(open(url)), false
+    scripts = doc.xpath("//script")
+
+    scripts.each do |script|
+      if script.children[0] &&
+         /\b(UA)\b-[0-9]{8}-[0-9]{1}/ =~ script.children[0].text &&
+         script.children[0].text.include?('www.google-analytics.com')
+
+        has_ga_code = true 
+      end
+    end
+
+    unless has_ga_code
+      ga = @site.crawling_errors.build(error_type: 'No Google Analytics Code', url: url, info: "No Google Analytics code was found on this page")
+      ga.new_record? ? ga.save : ga.destroy
     end
   end
 
