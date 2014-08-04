@@ -15,7 +15,8 @@
 - if @site.currently_crawling
   .loader
     Crawling site...
-  Crawling site...
+  .center
+    Crawling site...
 - else
   = link_to new_crawl_path(@site), class: 'btn btn-primary col-md-12 crawl-button' do
     %i.fa.fa-rocket
