@@ -1,4 +1,7 @@
-%td= link_to site.name, site
+%td
+  = link_to site.name, site
+  - if site.currently_crawling
+    %strong (currently crawling)
 %td
   = site.url
   = link_to '(visit site)', site.url
